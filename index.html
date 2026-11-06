@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DEMHAT AI</title>
+<style>
+body {
+  margin: 0;
+  background: #080d1c;
+  color: white;
+  font-family: Arial, sans-serif;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+}
+main {
+  width: 88%;
+  text-align: center;
+}
+h1 { color: #16c5df; }
+p { color: #b9c5d8; }
+button {
+  background: #10b9d5;
+  border: 0;
+  border-radius: 14px;
+  padding: 16px 28px;
+  font-size: 18px;
+  margin: 8px;
+}
+input {
+  width: 90%;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #34445e;
+  background: #17243a;
+  color: white;
+}
+</style>
+</head>
+<body>
+<main>
+<h1>DEMHAT AI</h1>
+<p>Kişisel yapay zekâ asistanın</p>
+<input id="message" placeholder="Bana bir şey söyle...">
+<br>
+<button onclick="listen()">🎙️ Konuş</button>
+<button onclick="send()">Gönder</button>
+<p id="result">Seni dinlemeye hazırım.</p>
+</main>
+<script>
+function listen() {
+  const Speech = window.SpeechRecognition ||
+                 window.webkitSpeechRecognition;
+  if (!Speech) {
+    document.getElementById("result").textContent =
+      "Ses tanıma bu tarayıcıda desteklenmiyor.";
+    return;
+  }
+  const rec = new Speech();
+  rec.lang = "tr-TR";
+  rec.onresult = e => {
+    document.getElementById("message").value =
+      e.results[0][0].transcript;
+  };
+  rec.start();
+}
+function send() {
+  const value = document.getElementById("message").value.trim();
+  if (!value) return;
+  document.getElementById("result").textContent =
+    "Mesajın alındı: " + value;
+}
+</script>
+</body>
+</html>
