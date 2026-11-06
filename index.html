@@ -1,75 +1,146 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DEMHAT AI</title>
 <style>
-body {
-  margin: 0;
-  background: #080d1c;
-  color: white;
-  font-family: Arial, sans-serif;
-  display: grid;
-  place-items: center;
-  min-height: 100vh;
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#080d1c;
+  color:#fff;
+  font-family:Arial,sans-serif;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
 }
-main {
-  width: 88%;
-  text-align: center;
+main{
+  width:100%;
+  max-width:520px;
+  background:#17243a;
+  padding:25px;
+  border-radius:20px;
+  text-align:center;
+  box-shadow:0 10px 35px #0006;
 }
-h1 { color: #16c5df; }
-p { color: #b9c5d8; }
-button {
-  background: #10b9d5;
-  border: 0;
-  border-radius: 14px;
-  padding: 16px 28px;
-  font-size: 18px;
-  margin: 8px;
+h1{color:#16c5df;margin-bottom:8px}
+.subtitle{color:#b9c5d8}
+#status{color:#16c5df;margin:20px 0}
+#chat{
+  height:260px;
+  overflow-y:auto;
+  background:#0d1729;
+  border-radius:12px;
+  padding:12px;
+  text-align:left;
+  margin:20px 0;
 }
-input {
-  width: 90%;
-  padding: 15px;
-  border-radius: 12px;
-  border: 1px solid #34445e;
-  background: #17243a;
-  color: white;
+.message{padding:10px;margin:8px 0;border-radius:10px}
+.user{background:#164b70}
+.assistant{background:#26364d}
+input{
+  width:100%;
+  padding:15px;
+  border-radius:10px;
+  border:1px solid #44546a;
+  background:#0d1729;
+  color:white;
+  font-size:16px;
 }
+button{
+  background:#10b9d5;
+  color:#07111d;
+  border:0;
+  border-radius:10px;
+  padding:14px 20px;
+  margin:8px 3px;
+  font-size:16px;
+  font-weight:bold;
+}
+button:active{opacity:.7}
 </style>
 </head>
 <body>
 <main>
-<h1>DEMHAT AI</h1>
-<p>Kişisel yapay zekâ asistanın</p>
-<input id="message" placeholder="Bana bir şey söyle...">
-<br>
-<button onclick="listen()">🎙️ Konuş</button>
-<button onclick="send()">Gönder</button>
-<p id="result">Seni dinlemeye hazırım.</p>
+  <h1>DEMHAT AI</h1>
+  <p class="subtitle">Kişisel yapay zekâ asistanın</p>
+
+  <div id="status">Seni dinlemeye hazırım.</div>
+
+  <div id="chat">
+    <div class="message assistant">
+      Merhaba! DEMHAT AI başlangıç arayüzüne hoş geldin.
+    </div>
+  </div>
+
+  <input id="message" type="text" placeholder="Bana bir şey söyle...">
+
+  <button onclick="listen()">🎙️ Konuş</button>
+  <button onclick="send()">Gönder</button>
 </main>
+
 <script>
+const chat = document.getElementById("chat");
+const input = document.getElementById("message");
+const statusText = document.getElementById("status");
+
+function addMessage(text, type) {
+  const item = document.createElement("div");
+  item.className = "message " + type;
+  item.textContent = text;
+  chat.appendChild(item);
+  chat.scrollTop = chat.scrollHeight;
+}
+
 function listen() {
   const Speech = window.SpeechRecognition ||
                  window.webkitSpeechRecognition;
+
   if (!Speech) {
-    document.getElementById("result").textContent =
+    statusText.textContent =
       "Ses tanıma bu tarayıcıda desteklenmiyor.";
     return;
   }
-  const rec = new Speech();
-  rec.lang = "tr-TR";
-  rec.onresult = e => {
-    document.getElementById("message").value =
-      e.results[0][0].transcript;
+
+  const recognition = new Speech();
+  recognition.lang = "tr-TR";
+  statusText.textContent = "Seni dinliyorum...";
+
+  recognition.onresult = function(event) {
+    input.value = event.results[0][0].transcript;
+    statusText.textContent = "Konuşman algılandı.";
   };
-  rec.start();
+
+  recognition.onerror = function() {
+    statusText.textContent = "Ses algılanamadı. Tekrar dene.";
+  };
+
+  recognition.onend = function() {
+    if (statusText.textContent === "Seni dinliyorum...") {
+      statusText.textContent = "Dinleme tamamlandı.";
+    }
+  };
+
+  recognition.start();
 }
+
 function send() {
-  const value = document.getElementById("message").value.trim();
+  const value = input.value.trim();
   if (!value) return;
-  document.getElementById("result").textContent =
-    "Mesajın alındı: " + value;
+
+  addMessage(value, "user");
+  input.value = "";
+
+  addMessage(
+    "Mesajın alındı. Yapay zekâ bağlantısı henüz kurulmadı.",
+    "assistant"
+  );
+
+  statusText.textContent = "Mesaj alındı.";
 }
 </script>
 </body>
